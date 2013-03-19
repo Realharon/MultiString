@@ -157,6 +157,57 @@ class MultiString(object):
             self.__contexts__[self.context] += str(other)
         return self
 
+    def __add__(self,other):
+        if isinstance(other,str):
+            return self.active() + other
+        elif isinstance(other,MultiString):
+            return self.active() + other.active()
+
+    def __radd__(self,other):
+        if isinstance(other,str):
+            return other + self.active()
+        elif isinstance(other,MultiString):
+            return other.active() + self.active()
+
+    def __mul__(self,num):
+        return self.active() * num
+
+    def __len__(self):
+        return len(self.active())
+
+    def __unicode__(self):
+        return self.active().encode("utf8")
+
+    def __reversed__(self):
+        return self.active()[::-1] 
+
+    def __contains__(self, other):
+        return other in self.active()
+
+    def __getitem__(self,other):
+        return self.active()[other]
+
+
+    def __cmp__(self,other):
+        if self.active() < other:
+            return -1
+        elif self.active() == other:
+            return 0
+        else:
+            return 1
+
+    def __ne__(self,other):
+        return self.active() != other
+
+    def __nonzero__(self):
+        return self.active() is not None
+
+    def __mod__(self, *args):
+        if len(args) is 1:
+            return self.active() % args[0]
+        else:
+            return self.active() % args
+
     def __repr__(self):
         """
         Returns the active string.

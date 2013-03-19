@@ -3,14 +3,12 @@ import unittest
 import base64
 import os
 
-
-
 class MSTestCase(unittest.TestCase):
     def setUp(self):
         self.multistring = MultiString("en","It's my turn!")
 
-    def tearDown(self):
-        print(self.multistring.__dict__)
+#    def tearDown(self):
+        #print(self.multistring.__dict__)
 
     def testA(self):
         
@@ -115,6 +113,48 @@ class MSTestCase(unittest.TestCase):
         trx_b64en = self.multistring.translate('en', MultiString.OVERRIDE_TRANSLATION_PROTOCOL, lambda s: toverride)
         assert trx_b64en == toverride, \
                 "Override of b64 -> en failed."
+
+    def testMagic(self):
+
+        assert self.multistring.active() == str(self.multistring), \
+                "__str__ method not correctly implemented"
+
+        curr = self.multistring.active()
+
+        assert len(self.multistring) == len(curr), \
+                "__len__ method not correctly implemented"
+
+        add = curr + "junglebunny"
+        madd = self.multistring + "junglebunny"
+        assert add == madd, \
+                "__add__ method not correctly implemented"
+
+        radd = "junglebunny" + curr
+        mradd = "junglebunny" + self.multistring
+        assert radd == mradd, \
+                "__radd__ method not correctly implemented"
+
+        mul = curr*5
+        assert (self.multistring*5) == mul, \
+                "__mul__ method not correctly implemented"
+
+        self.multistring.en  = "foo %s"
+        assert (self.multistring % "bar") == "foo bar", \
+                "Multistring not correctly passing format args with single format placeholder"
+
+        self.multistring.en = "foo %s %s"
+        assert (self.multistring %("bar","baz")) == "foo bar baz", \
+                "MultiString not correctly passing multiple format arguments."
+
+        tdict = {"one" : "bar", "two": "baz"}
+        self.multistring.en = "foo %(one)s %(two)s" 
+        assert (self.multistring % tdict) == "foo bar baz", \
+                "MultiString not correctly processing format dicts."
+
+    def testSlice(self):
+        curr = self.multistring.active()
+        assert(curr[:3] == self.multistring[:3]),\
+                "Slicing improperly implemented."
         
     @unittest.expectedFailure
     def testF_InactiveContext(self):
@@ -158,5 +198,4 @@ class MSTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    os.system("clear&&clear")
     unittest.main()
