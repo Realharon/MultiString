@@ -187,7 +187,6 @@ class MultiString(object):
     def __getitem__(self,other):
         return self.active()[other]
 
-
     def __cmp__(self,other):
         if self.active() < other:
             return -1
@@ -339,3 +338,6 @@ class MultiString(object):
             raise MultiString.ContextException(context)
     
         self.context = context
+
+    def hasContext(self,context):
+        return context in self.__contexts__

@@ -12,6 +12,10 @@ overwriting valuable information.
 
 MultiStrings also offer bindings to translate contexts on the fly.
 
+MultiStrings have full support for slicing and concatenation, and
+even use the native `reversed` function, to return the string
+backwards.
+
 # Creation #
 
 When creating a MultiString, you must provide at least one context. 
@@ -182,6 +186,10 @@ may call this method on other contexts with the dot operator:
     str(multiString.de) == multiString.de # True, if 'de' is not None
 
     print(multiString) # prints the active context
+
+Because the MultiString defers to native string methods as much as it can to allow
+drop in support of MultiString objects into current code, it can be difficult to 
+access MultiString properties themselves, as they are masked by their `str` counterparts.
 
 # Why the Hell Would I Use This? #
 

@@ -155,6 +155,15 @@ class MSTestCase(unittest.TestCase):
         curr = self.multistring.active()
         assert(curr[:3] == self.multistring[:3]),\
                 "Slicing improperly implemented."
+
+    def testProperties(self):
+        assert self.multistring.hasContext('en'), \
+                "Expected 'True'"
+
+        assert not self.multistring.hasContext('sp'), \
+                "Expected 'False'"
+
+
         
     @unittest.expectedFailure
     def testF_InactiveContext(self):
