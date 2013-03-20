@@ -83,9 +83,11 @@ class MultiString(object):
         elif isinstance(contexts,(list,tuple)):
             self.importList(contexts)
             self.active(contexts[0])
+            self.__contexts__[contexts[0]] = initstr
         elif isinstance(contexts,str):
             self.addContext(contexts,initstr)
             self.active(contexts)
+            self.__contexts__[contexts] = initstr
 
 
     def __setattr__(self,attr,value):
