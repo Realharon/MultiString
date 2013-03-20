@@ -252,6 +252,8 @@ There is no installation required. Since this is a single class, you can simply 
 However, if you wish to install it on your python's Path, you can do so with
    
     python setup.py install
+    # OR
+    easy_install MultiString # if you don't want to clone the repo
 
 Regardless:  `from multistring import MultiString` will get you up and running.
 

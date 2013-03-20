@@ -276,7 +276,7 @@ class MultiString(object):
                 raise MultiString.TranslationNotFoundException(self.context,destination)
         # Cannot translate 'None' or ""
         elif self.active() in (None,""):
-            raise MultiString.NullTranslationException(self.active)
+            raise MultiString.NullTranslationException(self.active())
         
         # Determine translation protocol 
         if callback and (flags & MultiString.OVERRIDE_TRANSLATION_PROTOCOL):
