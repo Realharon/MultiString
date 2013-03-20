@@ -248,10 +248,11 @@ tests don't cover, but should!
 
 # Installing #
 
-There is no installation. Since this is a single class, you can simply import it as-is.
+There is no installation required. Since this is a single class, you can simply import it as-is.
+However, if you wish to install it on your python's Path, you can do so with
+   
+    python setup.py install
 
-    from MultiString import MultiString
+Regardless:  `from multistring import MultiString` will get you up and running.
 
 There are no variables outside of the class scope that will affect your namespace.
-
-
