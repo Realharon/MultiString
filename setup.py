@@ -16,7 +16,6 @@ except:
 setup(
         name = "MultiString",
         version = "0.1.3",
->>>>>>> 03b5a1ccb6d59c0cb36e03db609006e6f1c02553
         description="MultiString is a class that allows strings to take on different meanings depending on their context.",
         long_description = readme,    
         author="Tom A. Thorogood",
