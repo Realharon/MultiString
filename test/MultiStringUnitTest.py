@@ -1,4 +1,4 @@
-from MultiString import MultiString
+from multistring import MultiString
 import unittest
 import base64
 import os
