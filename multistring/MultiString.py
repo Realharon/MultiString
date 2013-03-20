@@ -67,7 +67,7 @@ class MultiString(object):
         def __str__(self):
             return "Attempt to add context %(attr)s failed, because it is already a property of this object, containing the value %(val)s" % self.__dict__
 
-    def __init__(self, contexts, initstr=None):
+    def __init__(self, contexts, initstr=None, active=None):
         """
         ms = MultiString({'en' : 'hello', 'sp' : 'hola'})
         ms = MultiString(('en','sp'),'hello')
@@ -80,6 +80,8 @@ class MultiString(object):
             # Note that in dict instances, we cannot assume an 
             # initial context.
             self.importDict(contexts)
+            if active is not None:
+                self.active(active)
         elif isinstance(contexts,(list,tuple)):
             self.importList(contexts)
             self.active(contexts[0])
@@ -229,7 +231,7 @@ class MultiString(object):
         """
         for context in contexts:
             definition = contexts[context]
-            addContext(context,definition)
+            self.addContext(context,definition)
 
     def translate(self, destination, flags = 0, callback=None):
         """
@@ -334,7 +336,10 @@ class MultiString(object):
 
     def active(self,context=None):
         if not context:
-            return self.__contexts__[self.context]
+            try:
+                return self.__contexts__[self.context]
+            except KeyError:
+                raise MultiString.ContextException(context)
         
         if context not in self.__contexts__:
             raise MultiString.ContextException(context)
