@@ -22,8 +22,8 @@ setup(
         author_email="tom@tomthorogood.com",
         license="GPLv3",
         url = "http://www.github.com/tomthorogood/MultiString",
-        test_suite = 'MSTestCase',
-        packages = find_packages(exclude=['setup.py','tests']),
+        test_suite = 'test',
+        packages = find_packages(exclude=['setup.py','test']),
         zip_safe = True
 )
 
