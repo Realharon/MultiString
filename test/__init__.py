@@ -1,1 +1,1 @@
-from MultiStringUnitTest import *
+from test.MultiStringUnitTest import *

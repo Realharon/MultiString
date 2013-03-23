@@ -1,1 +1,1 @@
-from MultiString import MultiString
+from multistring.MultiString import MultiString
