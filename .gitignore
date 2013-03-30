@@ -5,3 +5,5 @@ MultiString.egg-info/
 build/
 *__pycache__*
 .tox/
+EAMDAER.md
+README.rst
