@@ -4,12 +4,18 @@ clean:
 	rm -rf build/
 	rm -rf .tox/
 	rm -rf test/__pycache__
+	rm -rf docs.zip
+	rm -rf README.rst
+	cd docs && $(MAKE) clean
 
-register: docs
+register: docs.zip
 	python setup.py sdist bdist_egg register upload
 
-docs:
+docs.zip:
 	cp README.md docs/
 	cd docs && $(MAKE) all
-	cd docs && $(MAKE) clean
+	cp docs/docs.zip .
+
+README.rst: docs.zip
+	cp docs/README.rst .
 
