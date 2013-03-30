@@ -1,0 +1,367 @@
+<h2>Table of Contents</h2>
+
+<ul>
+<li><a href="#multistring">What is MultiString?</a></li>
+<li><a href="#changelog">ChangeLog</a></li>
+<li><a href="#creation">Creating a MultiString</a></li>
+<li><a href="#stringusage">String Usage</a></li>
+<li><a href="#contexts">Contexts</a></li>
+<li><a href="#translating">Translating</a>
+<ul>
+<li><a href="#translating-defining">Defining Translations</a></li>
+<li><a href="#translating-contexts">Translating Contexts</a></li>
+</ul></li>
+<li><a href="#contextaccess">Context Access</a></li>
+<li><a href="#gotchas">Gotchas</a></li>
+<li><a href="#whythehell">Why the Hell Would I Use This?</a></li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#installing">Installing</a></li>
+</ul>
+
+<p><a name="multistring"></a></p>
+
+<h1>MultiString</h1>
+
+<p>MultiString is a Python class which allows a single string to operate
+in many different contexts. A good use case for this would be for the 
+interchange of the same string in many different languages. </p>
+
+<p>The MultiString object itself can use any valid string method, and
+the method will only affect the currently active context, meaning
+MultiStrings can be used as-is with any existing code. Additionally,
+MultiStrings are very protective of their contexts. An inactive context
+may not be manipulated in any way, preventing you from accidentally
+overwriting valuable information.</p>
+
+<p>MultiStrings also offer bindings to translate contexts on the fly.</p>
+
+<p>MultiStrings have full support for slicing and concatenation, and
+even use the native <code>reversed</code> function, to return the string
+backwards.</p>
+
+<p><a name="changelog"></a></p>
+
+<h1>Changelog</h1>
+
+<ul>
+<li>0.1.5:
+<ul>
+<li>Test suite now succeeds with both Py2.7 and Py3.2 (using Tox)</li>
+<li>When initializing with a dict, may now pass in 'active' argument to set initial context</li>
+<li>Fix initial string not being set if passed in by a user</li>
+<li>Fix typo when raising NullValueException</li>
+<li>Fix not building with pip</li>
+</ul></li>
+</ul>
+
+<p><a name="creation"></a></p>
+
+<h1>Creation</h1>
+
+<p>When creating a MultiString, you must provide at least one context. 
+You may also pass in defined translations for each context, if you wish.</p>
+
+<p>There are four valid methods for creating a MultiString object:</p>
+
+<pre><code># Creates a MultiString with a single context, defines the context,
+# and sets this context as active
+basicMultiString = MultiString("en", "This is English")
+
+# Creates a MultiString with many contexts, and sets the first one 
+# as active
+stagedMultiString = MultiString(("en","de","sp")) 
+
+# Creates a MultiString with many contexts, defines the first one,
+# and sets the first one as active
+stagedWithDefault = MultiString(("en","de","sp"), "This is English")
+
+# Creates a MultiString with many contexts and defines them all,
+# but does not assume which you'd like set active
+fullyDefined = MultiString({
+    "en"    :   "This is English",
+    "de"    :   "Dieser is Deutsch",
+    "sp"    :   "Este es el espanol"
+})
+</code></pre>
+
+<p>In all instances, the 'default' argument is optional (and will be ignored if you
+pass in a dictionary). </p>
+
+<p><a name="stringusage"></a></p>
+
+<h1>String Usage</h1>
+
+<p>The MultiString does not inherit from the <code>str</code> class, but rather
+defers to it whenever it needs help. If you try to call any method
+that the MultiString class does not offer, it will attempt to call
+that method on its currently active string itstead.</p>
+
+<pre><code>multiString = MultiString("en", "this is english")
+multiString.upper() # returns 'THIS IS ENGLISH'
+multiString.upper() == multiString.en.upper()
+multiString += ", and here's another clause."
+print multiString # prints 'this is english, and here's another clause'
+</code></pre>
+
+<p>These operations <em>only</em> affect the <em>active</em> context. For instance:</p>
+
+<pre><code># assuming 'en' is still active
+multiString.addContext('de', 'Guten tag!')
+multiString += ". Also this."
+print multiString #prints "this is english. Also this."
+print multiString.en  #prints "this is english. Also this."
+print multiString.de #prints "Guten tag!"
+</code></pre>
+
+<p>This means that within the current context, you have normal control, but you 
+will not affect any other context of the string. </p>
+
+<p><a name="contexts"></a></p>
+
+<h1>Contexts</h1>
+
+<p>Contexts are read-only unless they are active, and default to <code>None</code>.
+Contexts may not be redefined later, and will throw an error if you try.
+They also cannot be the same as any other attribute of the MultiString.
+Again, this is for the protection of your data!</p>
+
+<pre><code>multiString = MultiString(('en','de'),"This is English.")
+multiString.addContext('en', "Woops!")      # error. Context already exists.
+multiString.de = "Deutsch!"                 # error, because 'en' is active
+multistring.en = "This is cool, though."    # fine, because we're manipulating the active context
+print(multiString.de)                       #'None'
+multiString.someProperty = 17               # no problem!
+multiString.someProperty = 29               # no problem!
+multiString.addContext('someProperty')      # error! You'll be sorry!
+</code></pre>
+
+<p><a name="translating"></a></p>
+
+<h1>Translating</h1>
+
+<p>The last feature of the MultiString is native translation. </p>
+
+<p><a name="translating-defining"></a></p>
+
+<h2>Defining Translations</h2>
+
+<p>You can add translations between any two defined contexts. You must provide
+three arguments to the <code>addTranslation</code> method: </p>
+
+<pre><code>addTranslate(fromContext,toContext,callback)
+</code></pre>
+
+<p>where <code>callback</code> is a function reference or lambda which <em>accepts</em> a 'from' and <em>returns</em> a 'to'</p>
+
+<pre><code>import base64
+
+multiString = MultiString(('en','b64'))
+multiString.addTranslation('en','b64', lambda s: base64.b64encode(s))
+multiString.addTranslation('b64','en', lambda s: base64.b64decode(s))
+</code></pre>
+
+<p><a name="translating-contexts"></a></p>
+
+<h2>Translating Contexts</h2>
+
+<p>Translating always occurs from the active context, to whatever context
+you provide. When translating, you also have options to store these translations,
+or override the translation protocol for special circumstances.</p>
+
+<pre><code>multiString.active('en')
+multiString.en = "Here is some English"
+
+# Two things happen here. Since the 'b64' context is currently empty,
+# it will store the translation in the 'b64' context, as well as return it.
+en_to_b64 = multiString.translate('b64')
+en_to_b64 == multiString.b64 # True
+
+# However, if we change the english and run another translation,
+# the result will not be preserved by default, in order to prevent you
+# from losing data:
+
+multiString.en = "Some other English"
+en_to_b64 = multiString.translate('b64')
+en_to_b64 == multiString.b64 # False
+
+# You can override this default behaviour:
+en_to_b64 = multiString.translate('b64', OVERWRITE_STORED_VALUE)
+en_to_b64 == multiString.b64 # True
+
+# You can also perform an on-the-fly translation through some other 
+# means, so long as the destination context is previously defined.
+en_to_b64 = multiString.translate('b64', OVERRIDE_TRANSLATION_PROTOCOL, lambda s: "Just kidding!")
+en_to_b64 == multiString.b64 # False
+en_to_b64 = multiString.translate('b64', OVERRIDE_TRANSLATION_PROTOCOL | OVERWRITE_STORED_VALUE, lambda s: "Just kidding!")
+en_to_b64 == multiString.b64 # True
+
+# The last thing we can do is skip the 'addTranslation' step altogether. If no translation exists
+# for this context, the translation will be added automatically if you provide it:
+
+multiString.en = "Here's some letters and numbers: ABCDEF4815162342"
+multiString.addContext('letters')
+letters = multiString.translate('letters', callback=lambda s: "".join([char for char in s if char in string.ascii_letters]))
+letters == multiString.letters # True
+letters == "HeressomelettersandnumbersABCDEF" # True
+
+multiString.addContext('only8')
+multiString.active('letters')
+multiString.translate('only8', callback=lambda s: s[:8]) # == "Heressom"
+multiString.active('en')
+multiString.translate('only8') # == 'Here's S'
+</code></pre>
+
+<p><a name="contextaccess"></a></p>
+
+<h1>Context Access</h1>
+
+<p>Contexts can be read as would any other property of a class. </p>
+
+<pre><code>multiString.addContext('foo', 'bar')
+print multiString.foo # 'bar'
+</code></pre>
+
+<p>You can get the active context using the 'str' method, or the 'active()' method:</p>
+
+<pre><code>multiString.active() == str(multiString) # True
+</code></pre>
+
+<p><a name="gotchas"></a></p>
+
+<h1>Limitations &amp; Gotchas</h1>
+
+<p>Because Python tags values, and doesn't 'set variables', you cannot alter your active context
+simply by assigning the multiString another value.</p>
+
+<pre><code>multiString = MultiString('en', "Hello, World!")
+multiString = "Goodbye, cruel world!" # No! Your MultiString will be destroyed
+</code></pre>
+
+<p>Instead, you must assign the context itself (and only the active one, at that):</p>
+
+<pre><code>multiString = MultiString('en', "Hello, World!")
+multiString.en = "Goodbye, cruel world!" # Much better
+</code></pre>
+
+<p>The <code>str()</code> method will always refer to the <em>active</em> context. This is intended behaviour. However, you
+may call this method on other contexts with the dot operator:</p>
+
+<pre><code>multiString.active('en')
+str(multiString) == multiString.en # True
+str(multiString.de) == multiString.de # True, if 'de' is not None
+
+print(multiString) # prints the active context
+</code></pre>
+
+<p>Because the MultiString defers to native string methods as much as it can to allow
+drop in support of MultiString objects into current code, it can be difficult to 
+access MultiString properties themselves, as they are masked by their <code>str</code> counterparts.</p>
+
+<p><a name="whythehell"></a></p>
+
+<h1>Why the Hell Would I Use This?</h1>
+
+<p>If you have a system which is being translated into other languages, the MultiString can be a valuable method
+of replacing syntax without having to rewire your entire system. For instance:</p>
+
+<p><strong>Old System</strong>:</p>
+
+<pre><code>errorMessage = "Sorry, but something went horribly wrong and you should give up now!\n"
+sys.stderr.write(errorMessage)
+</code></pre>
+
+<p>That's only useful if your audience speaks English.</p>
+
+<p><strong>Enter the MultiString</strong>:</p>
+
+<pre><code>errorMessage = MultiString({
+    "en"        :   "All praise the great one! Let him rise and weave us new dreams!",
+    "piglatin"  :   "Allyay raisepay ethey ategray oneyay!"
+    "cthulian"  :   "Ia! Ia! Cthulhu fhtaghn!"
+})
+
+errorMessage.active(user.preferred_language)
+
+sys.stderr.write(errorMessage + "\n")
+</code></pre>
+
+<p><strong>External APIs</strong>:</p>
+
+<p>If you wanted, you could also seamlessly integrate another API to natively handle translations for you:</p>
+
+<pre><code>multi = MultiString(('en','es'), "I don't speak Spanish, but Google kinda does.")
+multi.addContext(user.preferred_language)
+
+# Assuming you have an api with a method 'sendCall' which takes 
+# a language code and some text as arguments
+multi.translate(user.preferred_language, lambda s: someAPI.sendCall(user.preferred_language, multi.active()))
+multi.active(user.preferred_language)
+</code></pre>
+
+<p><strong>Computer Science</strong>:</p>
+
+<p>This is what the MultiString was originally conceived for, by the way:</p>
+
+<pre><code>multi = MultiString(('py','cpp'))
+multi.addTranslation('py','cpp', myPyToCppModule)
+multi.addTranslation('cpp','py', myCppToPyModule)
+multi.py = "print(Hello world!)"
+multi.translate('cpp') # returns 'std::cout &lt;&lt;&lt; "Hello world!" &lt;&lt; std::endl;'
+multi.active('cpp')
+multi.translate('py') == multi.py # True if the translation modules were written correctly
+</code></pre>
+
+<p><a name="testing"></a></p>
+
+<h1>Testing</h1>
+
+<p>If you're on python 2.7.3 or higher, you can run 'python MultiStringUnitTest.py' to 
+run basic tests. Please let me know if any of them fail, or you find anything else that the
+tests don't cover, but should!</p>
+
+<p><a name="installing"></a></p>
+
+<h1>Installing</h1>
+
+<p>There is no installation required. Since this is a single class, you can simply import it as-is.
+However, if you wish to install it on your python's Path, you can do so with</p>
+
+<pre><code>python setup.py install
+# OR
+easy_install MultiString 
+# OR
+pip install MultiString
+</code></pre>
+
+<p>Regardless:  <code>from multistring import MultiString</code> will get you up and running.</p>
+
+<p>There are no variables outside of the class scope that will affect your namespace.</p>
+
+<p><a name="license"></a></p>
+
+<h1>License</h1>
+
+<p><strong>MultiString is distributed with GPLv3</strong></p>
+
+<p>MultiString - A String class that allows strings to have contextual meanings
+Copyright (C) 2013 - Tom A. Thorogood</p>
+
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+
+<p><a name="credits"></a></p>
+
+<h1>Credits</h1>
+
+<p><a href="http://www.github.com/tomthorogood">Tom A. Thorogood</a>
+<a href="http://www.github.com/jonathaneunice">Jonathan Eunice</a></p>

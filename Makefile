@@ -16,6 +16,14 @@ docs.zip:
 	cd docs && $(MAKE) all
 	cp docs/docs.zip .
 
-README.rst: docs.zip
+README.md: EMDAER.md
+	mv EMDAER.md README.md
+
+EMDAER.md: README.md
+	cp README.md EMDAER.md
+
+README.rst: README.md docs.zip
 	cp docs/README.rst .
+	mv README.md EMDAER.md
+
 

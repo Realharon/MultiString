@@ -34,6 +34,15 @@ use the native ``reversed`` function, to return the string backwards.
 
  # Changelog #
 
+-  0.1.5:
+
+   -  Test suite now succeeds with both Py2.7 and Py3.2 (using Tox)
+   -  When initializing with a dict, may now pass in 'active' argument
+      to set initial context
+   -  Fix initial string not being set if passed in by a user
+   -  Fix typo when raising NullValueException
+   -  Fix not building with pip
+
  # Creation #
 
 When creating a MultiString, you must provide at least one context. You
@@ -315,7 +324,9 @@ python's Path, you can do so with
 
     python setup.py install
     # OR
-    easy_install MultiString # if you don't want to clone the repo
+    easy_install MultiString 
+    # OR
+    pip install MultiString 
 
 Regardless: ``from multistring import MultiString`` will get you up and
 running.
@@ -342,6 +353,8 @@ Public License for more details.
 
 You should have received a copy of the GNU General Public License along
 with this program. If not, see http://www.gnu.org/licenses/.
+
+ # Credits #
 
 `Tom A. Thorogood <http://www.github.com/tomthorogood>`_ `Jonathan
 Eunice <http://www.github.com/jonathaneunice>`_

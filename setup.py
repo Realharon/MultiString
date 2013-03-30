@@ -4,7 +4,7 @@ with open("README.md") as readme_md:
 
 setup(
         name = "MultiString",
-        version = "0.1.5",
+        version = "0.1.5b",
         description="MultiString is a class that allows strings to take on different meanings depending on their context.",
         long_description = readme,    
         author="Tom A. Thorogood",
