@@ -3,6 +3,19 @@ import unittest
 import base64
 import os
 
+def strtob64(string):
+    string_b = string.encode('utf8')
+    b64_b = base64.b64encode(string_b)
+    b64_s = b64_b.decode('utf8')
+    return b64_s
+
+def b64tostr(b64_s):
+    b64_b = b64_s.encode('utf8')
+    string_b = base64.b64decode(b64_b)
+    string = string_b.decode('utf8')
+    return string
+
+
 class MSTestCase(unittest.TestCase):
     def setUp(self):
         self.multistring = MultiString("en","It's my turn!")
@@ -77,29 +90,29 @@ class MSTestCase(unittest.TestCase):
         assert self.multistring.en != self.multistring.de, \
                 "en != de failed!"
 
-        self.t64str = base64.b64encode(self.multistring.en)
+        self.t64str = strtob64(self.multistring.en)
         self.tenstr = self.multistring.en
         self.tdestr = self.multistring.de
-        self.multistring.addContext("b64", base64.b64encode(self.multistring.en))
+        self.multistring.addContext("b64", strtob64(self.multistring.en))
         self.multistring.active('b64')
 
         assert self.t64str == str(self.multistring), \
                 "Initial definition of b64 context failed."
 
-        self.multistring.addTranslation('b64','en', lambda s: base64.b64decode(s))
-        self.multistring.addTranslation('b64','de', lambda s: base64.b64decode(s))
-        self.multistring.addTranslation('en','b64', lambda s: base64.b64encode(s))
-        self.multistring.addTranslation('de','b64', lambda s: base64.b64encode(s))
+        self.multistring.addTranslation('b64','en', b64tostr)
+        self.multistring.addTranslation('b64','de', b64tostr)
+        self.multistring.addTranslation('en','b64', strtob64)
+        self.multistring.addTranslation('de','b64', strtob64)
 
         assert self.multistring.context == "b64", \
                 "Active context should be 'b64', is %s" % self.multistring.context
         
         trx_b64en = self.multistring.translate('en')
         assert trx_b64en == self.tenstr, \
-                "Translation from b64 -> en failed"
+                "Translation from b64 -> en failed. Expecting %s, was %s" % (self.tenstr,trx_b64en)
 
         self.multistring.active('de')
-        trx_deb64_local = base64.b64encode(self.multistring.de)
+        trx_deb64_local = strtob64(self.multistring.de)
         trx_deb64 = self.multistring.translate('b64', MultiString.OVERWRITE_STORED_VALUE)
         assert trx_deb64 == trx_deb64_local, \
                 "Translation from de -> b64 failed"
@@ -193,7 +206,7 @@ class MSTestCase(unittest.TestCase):
     @unittest.expectedFailure
     def testF_NullTranslation(self):
             self.addContext('b64')
-            self.multistring.addTranslation('b64', 'en', lambda s: base64.b64encode(s))
+            self.multistring.addTranslation('b64', 'en', strtob64)
             fail = self.multistring.translate('en')
 
     @unittest.expectedFailure
