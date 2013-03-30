@@ -36,6 +36,9 @@ backwards.
 <a name="changelog"></a>
 # Changelog #
 
++ 0.1.5c:
+    + PyPi documentation should now be in RST format
+
 + 0.1.5:
     + Test suite now succeeds with both Py2.7 and Py3.2 (using Tox)
     + When initializing with a dict, may now pass in 'active' argument to set initial context

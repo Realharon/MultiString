@@ -7,8 +7,9 @@ clean:
 	rm -rf docs.zip
 	rm -rf README.rst
 	cd docs && $(MAKE) clean
+	mv -f EMDAER.md README.md
 
-register: docs.zip
+register: docs.zip README.rst
 	python setup.py sdist bdist_egg register upload
 
 docs.zip:
