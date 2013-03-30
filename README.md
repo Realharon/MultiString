@@ -1,3 +1,20 @@
+## Table of Contents #
+
++ [What is MultiString?](#multistring)
++ [ChangeLog](#changelog)
++ [Creating a MultiString](#creation)
++ [String Usage](#stringusage)
++ [Contexts](#contexts)
++ [Translating](#translating)
+  + [Defining Translations](#translating-defining)
+  + [Translating Contexts](#translating-contexts)
++ [Context Access](#contextaccess)
++ [Gotchas](#gotchas)
++ [Why the Hell Would I Use This?](#whythehell)
++ [Testing](#testing)
++ [Installing](#installing)
+
+<a name="multistring"></a>
 # MultiString #
 MultiString is a Python class which allows a single string to operate
 in many different contexts. A good use case for this would be for the 
@@ -16,6 +33,10 @@ MultiStrings have full support for slicing and concatenation, and
 even use the native `reversed` function, to return the string
 backwards.
 
+<a name="changelog"></a>
+# Changelog #
+
+<a name="creation"></a>
 # Creation #
 
 When creating a MultiString, you must provide at least one context. 
@@ -46,6 +67,7 @@ There are four valid methods for creating a MultiString object:
 In all instances, the 'default' argument is optional (and will be ignored if you
 pass in a dictionary). 
 
+<a name="stringusage"></a>
 # String Usage #
 
 The MultiString does not inherit from the `str` class, but rather
@@ -71,6 +93,7 @@ These operations _only_ affect the _active_ context. For instance:
 This means that within the current context, you have normal control, but you 
 will not affect any other context of the string. 
 
+<a name="contexts"></a>
 # Contexts #
 
 Contexts are read-only unless they are active, and default to `None`.
@@ -87,10 +110,12 @@ Again, this is for the protection of your data!
     multiString.someProperty = 29               # no problem!
     multiString.addContext('someProperty')      # error! You'll be sorry!
 
+<a name="translating"></a>
 # Translating #
 
 The last feature of the MultiString is native translation. 
 
+<a name="translating-defining"></a>
 ## Defining Translations  #
 
 You can add translations between any two defined contexts. You must provide
@@ -106,6 +131,7 @@ where `callback` is a function reference or lambda which _accepts_ a 'from' and 
     multiString.addTranslation('en','b64', lambda s: base64.b64encode(s))
     multiString.addTranslation('b64','en', lambda s: base64.b64decode(s))
 
+<a name="translating-contexts"></a>
 ## Translating Contexts #
 
 Translating always occurs from the active context, to whatever context
@@ -154,6 +180,7 @@ or override the translation protocol for special circumstances.
     multiString.active('en')
     multiString.translate('only8') # == 'Here's S'
 
+<a name="contextaccess"></a>
 # Context Access #
 
 Contexts can be read as would any other property of a class. 
@@ -165,6 +192,7 @@ You can get the active context using the 'str' method, or the 'active()' method:
 
     multiString.active() == str(multiString) # True
 
+<a name="gotchas"></a>
 # Limitations & Gotchas #
 
 Because Python tags values, and doesn't 'set variables', you cannot alter your active context
@@ -191,6 +219,7 @@ Because the MultiString defers to native string methods as much as it can to all
 drop in support of MultiString objects into current code, it can be difficult to 
 access MultiString properties themselves, as they are masked by their `str` counterparts.
 
+<a name="whythehell"></a>
 # Why the Hell Would I Use This? #
 
 If you have a system which is being translated into other languages, the MultiString can be a valuable method
@@ -240,12 +269,14 @@ This is what the MultiString was originally conceived for, by the way:
     multi.active('cpp')
     multi.translate('py') == multi.py # True if the translation modules were written correctly
 
+<a name="testing"></a>
 # Testing #
 
 If you're on python 2.7.3 or higher, you can run 'python MultiStringUnitTest.py' to 
 run basic tests. Please let me know if any of them fail, or you find anything else that the
 tests don't cover, but should!
 
+<a name="installing"></a>
 # Installing #
 
 There is no installation required. Since this is a single class, you can simply import it as-is.
@@ -258,3 +289,29 @@ However, if you wish to install it on your python's Path, you can do so with
 Regardless:  `from multistring import MultiString` will get you up and running.
 
 There are no variables outside of the class scope that will affect your namespace.
+
+<a name="license"></a>
+# License #
+
+__MultiString is distributed with GPLv3__
+
+MultiString - A String class that allows strings to have contextual meanings
+Copyright (C) 2013 - Tom A. Thorogood
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+<a name="credits"></a>
+
+[Tom A. Thorogood](http://www.github.com/tomthorogood)
+[Jonathan Eunice](http://www.github.com/jonathaneunice)
